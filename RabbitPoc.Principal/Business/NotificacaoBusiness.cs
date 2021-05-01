@@ -1,8 +1,8 @@
-﻿using ClassLibrary1;
-using ClassLibrary1.Exchanges;
-using ClassLibrary1.Messages;
-using ClassLibrary1.Queues;
-using ClassLibrary1.Structure;
+﻿using RabbitPoc.MQCommon;
+using RabbitPoc.MQCommon.Exchanges;
+using RabbitPoc.MQCommon.Messages;
+using RabbitPoc.MQCommon.Queues;
+using RabbitPoc.MQCommon.Structure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
