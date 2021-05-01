@@ -20,10 +20,8 @@ namespace RabbitPoc.Worker
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddSingleton(x => new ConnectionFactory { HostName = "localhost" });
-
-                    services.AddHostedService<NormalQueueWorker>();
-                    services.AddHostedService<RPCWorker>();
+                    services.AddSingleton(x => new ConnectionFactory { HostName = "localhost", DispatchConsumersAsync = true });
+                    services.AddHostedService<MainQueueWorker>();
                 });
     }
 }

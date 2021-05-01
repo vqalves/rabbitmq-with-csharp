@@ -12,13 +12,13 @@ namespace RabbitPoc.Principal.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly NotificacaoBusiness notificacaoBusiness;
-        private readonly ILogger<HomeController> _logger;
+        private readonly MQService MQService;
+        private readonly ILogger<HomeController> Logger;
 
-        public HomeController(NotificacaoBusiness notificacaoBusiness, ILogger<HomeController> logger)
+        public HomeController(MQService mqService, ILogger<HomeController> logger)
         {
-            this.notificacaoBusiness = notificacaoBusiness;
-            _logger = logger;
+            this.MQService = mqService;
+            this.Logger = logger;
         }
 
         public IActionResult Index()
@@ -26,37 +26,25 @@ namespace RabbitPoc.Principal.Controllers
             return View();
         }
 
-        public IActionResult Enviar([FromQuery]string message)
+        [HttpPost("/api/send")]
+        public IActionResult Send()
         {
-            //var content = $"{Guid.NewGuid().ToString("n")} Created: {DateTime.Now.ToString("mm:ss.fff")}";
-
-            notificacaoBusiness.EnviarAlt(message);
+            MQService.SendExampleMessage2();
             return Ok();
         }
 
-        public IActionResult Enviar2([FromQuery] string message)
+        [HttpPost("/api/send-with-response")]
+        public IActionResult SendWithResponse(string message)
         {
-            //var content = $"{Guid.NewGuid().ToString("n")} Created: {DateTime.Now.ToString("mm:ss.fff")}";
-            //
-            //RpcClient client = new RpcClient();
-            //var response = client.Call(content);
-            //return Json(response);
-
-            var result = notificacaoBusiness.EnviarComRPC(message);
+            var result = MQService.SendAndWaitResponse_WithRPC(message);
             return Json(result);
         }
-        public IActionResult Enviar3([FromQuery] string message)
-        {
-            //var content = $"{Guid.NewGuid().ToString("n")} Created: {DateTime.Now.ToString("mm:ss.fff")}";
 
-            notificacaoBusiness.EnviarComDelay2(message);
+        [HttpPost("/api/send-with-delay")]
+        public IActionResult SendWithDelay(string message)
+        {
+            MQService.SendExampleMessage1_WithDelay(message);
             return Ok();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

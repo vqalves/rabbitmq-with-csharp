@@ -1,8 +1,33 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<html>
+<body>
+    <section>
+        <h2>Send a normal message</h2>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        <form method="post" action="/api/send">
+            <button>Send</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Send message with delay</h2>
+
+        <form method="post" action="/api/send-with-delay">
+            <label>Random message:</label>
+            <input type="text" name="message" />
+
+            <button>Send</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Send message with result</h2>
+
+        <form method="post" action="/api/send-with-response">
+            <label>Random message:</label>
+            <input type="text" name="message" />
+
+            <button>Send</button>
+        </form>
+    </section>
+</body>
+</html>

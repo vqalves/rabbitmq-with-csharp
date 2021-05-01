@@ -14,7 +14,7 @@ namespace RabbitPoc.MQCommon.Queues
 
             var queueArguments = new Dictionary<string, object>();
             queueArguments.Add("x-dead-letter-exchange", DefaultExchange.ExchangeName);
-            queueArguments.Add("x-dead-letter-routing-key", MainQueue.QueueName);
+            queueArguments.Add("x-dead-letter-routing-key", MainQueue.QueueName); // Target queue
             queueArguments.Add("x-message-ttl", 5000); // Delay in miliseconds
 
             return model.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: true, arguments: queueArguments);

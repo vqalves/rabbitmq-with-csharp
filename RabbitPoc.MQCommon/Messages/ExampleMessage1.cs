@@ -9,7 +9,7 @@ namespace RabbitPoc.MQCommon.Messages
     {
         public const string TypeID = "ExampleMessage1";
 
-        public string Name { get; set; }
+        public string SentMessage { get; set; }
         public DateTime Date { get; set; }
         public Guid? Guid { get; set; }
     }

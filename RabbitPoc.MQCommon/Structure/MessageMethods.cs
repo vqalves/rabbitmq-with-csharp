@@ -7,9 +7,14 @@ namespace RabbitPoc.MQCommon.Structure
 {
     public class MessageMethods
     {
+        public static byte[] ToByte(string json) => Encoding.UTF8.GetBytes(json);
+        public static string ToJson(byte[] bytes) => Encoding.UTF8.GetString(bytes);
+
         public static byte[] ToByte<T>(string messageTypeId, T obj)
         {
-            return Encoding.UTF8.GetBytes(ToJson(messageTypeId, obj));
+            var json = ToJson(messageTypeId, obj);
+            var bytes = ToByte(json);
+            return bytes;
         }
 
         public static string ToJson<T>(string messageTypeId, T obj)
@@ -21,24 +26,10 @@ namespace RabbitPoc.MQCommon.Structure
             });
         }
 
-        public static string ToJson(byte[] bytes)
-        {
-            return Encoding.UTF8.GetString(bytes);
-        }
-
         public static string ToJson(ReadOnlyMemory<byte> bytes)
         {
-            return ToJson(bytes.ToArray());
-        }
-
-        public static T FromByte<T>(ReadOnlyMemory<byte> bytes)
-        {
-            return FromByte<T>(bytes.ToArray());
-        }
-
-        public static T FromByte<T>(byte[] bytes)
-        {
-            return FromJson<T>(ToJson(bytes));
+            var byteArray = bytes.ToArray();
+            return ToJson(byteArray);
         }
 
         public static T FromJson<T>(string json)
@@ -48,19 +39,18 @@ namespace RabbitPoc.MQCommon.Structure
             return content.messageBody;
         }
 
+        public static T FromByte<T>(ReadOnlyMemory<byte> bytes)
+        {
+            var byteArray = bytes.ToArray();
+            var json = ToJson(byteArray);
+            var obj = FromJson<T>(json);
+
+            return obj;
+        }
+
         public static string GetType(string json)
         {
             return JsonConvert.DeserializeObject<SerializedType>(json)?.messageTypeId;
-        }
-
-        public static bool IsType(string messageTypeId, byte[] bytes)
-        {
-            return IsType(messageTypeId, ToJson(bytes));
-        }
-
-        public static bool IsType(string messageTypeId, string json)
-        {
-            return GetType(json) == messageTypeId;
         }
 
         private class SerializedType

@@ -14,31 +14,17 @@ using System.Threading.Tasks;
 
 namespace RabbitPoc.Principal.Business
 {
-    public class NotificacaoBusiness
+    public class MQService
     {
         private readonly ConnectionFactory factory;
 
-        public NotificacaoBusiness()
+        public MQService()
         {
+            // Factory can be attributed through DI
             this.factory = new ConnectionFactory() { HostName = "localhost" };
         }
 
-        public void Enviar(string message)
-        {
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: "test", durable: true, exclusive: false, autoDelete: false, arguments: null);
-
-                var body = Encoding.UTF8.GetBytes(message);
-
-                channel.BasicPublish(exchange: "", routingKey: "test", basicProperties: null, body: body);
-
-                Console.WriteLine(" [x] Sent {0}", message);
-            }
-        }
-
-        public void EnviarAlt(string message)
+        public void SendExampleMessage2()
         {
             var content = new ExampleMessage2()
             {
@@ -55,37 +41,18 @@ namespace RabbitPoc.Principal.Business
             }
         }
 
-        public void EnviarComDelay(string message)
-        {
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-                string delayedQueue = "delayed-queue-1m";
-                string targetQueue = "test";
-
-                var queueArguments = new Dictionary<string, object>();
-                queueArguments.Add("x-dead-letter-exchange", "");
-                queueArguments.Add("x-dead-letter-routing-key", targetQueue);
-                queueArguments.Add("x-message-ttl", 60000);
-
-                var body = Encoding.UTF8.GetBytes(message);
-
-                channel.QueueDeclare(queue: delayedQueue, durable: true, exclusive: false, autoDelete: true, arguments: queueArguments);
-                channel.BasicPublish(exchange: "", routingKey: delayedQueue, basicProperties: null, body: body);
-            }
-        }
-
-        public void EnviarComDelay2(string message)
+        public void SendExampleMessage1_WithDelay(string name)
         {
             var content = new ExampleMessage1()
             {
-                Name = message,
+                SentMessage = name,
                 Date = DateTime.Now
             };
 
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
+                // Delay configuration is done inside the queue declaration
                 DelayedBy5SecondsQueue.DeclareQueue(channel);
 
                 var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
@@ -93,31 +60,40 @@ namespace RabbitPoc.Principal.Business
             }
         }
 
-        public ExampleResponse1 EnviarComRPC(string message)
+        public ExampleResponse1 SendAndWaitResponse_WithRPC(string message)
         {
             var responseQueue = new BlockingCollection<ExampleResponse1>();
 
             var content = new ExampleMessage1()
             {
-                Name = message,
+                SentMessage = message,
                 Date = DateTime.Now
             };
 
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                // Make sure all queues are declared before trying to consume
+                // Make sure all queues are declared before trying to publish/consume
                 DelayedBy5SecondsQueue.DeclareQueue(channel);
                 RPCResponseQueue.DeclareQueue(channel);
 
-                // Activate a consumer before sending the message, to make sure the workers don't add a feedback before you're listening
+                // CorrelationID should be a unique code, shared between the send and returned message
                 var correlationId = Guid.NewGuid().ToString("n");
+
+                // Send the message
+                var messageProperties = channel.CreateBasicProperties();
+                messageProperties.CorrelationId = correlationId;
+                messageProperties.ReplyTo = RPCResponseQueue.QueueName;
+
+                var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
+                channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: DelayedBy5SecondsQueue.QueueName, basicProperties: messageProperties, body: body);
+
+                // Listen to the response queue to receive the result data
+                // WARNING: RabbitMQ uses round-robin to distribute the messages between consumers. When multiple callers are listening to the same response queue, the response can go to some consumer who's not the original caller
+                // Don't use a single queue on a multi-threaded system or a web application (like this one)
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += (ch, ea) =>
                 {
-
-                    System.Diagnostics.Debug.WriteLine($"F> {ea.BasicProperties.CorrelationId} / LF> {correlationId}");
-
                     if (ea.BasicProperties.CorrelationId == correlationId)
                     {
                         var response = MessageMethods.FromByte<ExampleResponse1>(ea.Body);
@@ -128,17 +104,7 @@ namespace RabbitPoc.Principal.Business
 
                 channel.BasicConsume(RPCResponseQueue.QueueName, false, consumer);
 
-                // Send the message
-                var messageProperties = channel.CreateBasicProperties();
-                messageProperties.CorrelationId = correlationId;
-                messageProperties.ReplyTo = RPCResponseQueue.QueueName;
-
-                System.Threading.Thread.Sleep(new Random().Next(0, 10000));
-
-                var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
-                channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: DelayedBy5SecondsQueue.QueueName, basicProperties: messageProperties, body: body);
-
-                // Any call that blocks the thread until the response is received works
+                // Any call that halts the execution until the response is received works
                 return responseQueue.Take();
             }
         }
