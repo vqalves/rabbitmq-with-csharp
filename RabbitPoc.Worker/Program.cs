@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
-namespace RabbitPoc.Worker
+namespace RabbitPoc.Consumer
 {
     public class Program
     {

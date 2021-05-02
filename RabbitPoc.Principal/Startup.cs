@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RabbitPoc.Principal.Business;
+using RabbitPoc.Publisher.Business;
 
-namespace RabbitPoc.Principal
+namespace RabbitPoc.Publisher
 {
     public class Startup
     {

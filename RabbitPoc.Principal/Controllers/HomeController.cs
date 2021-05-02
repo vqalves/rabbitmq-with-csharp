@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RabbitPoc.Principal.Business;
-using RabbitPoc.Principal.Models;
+using RabbitPoc.Publisher.Business;
+using RabbitPoc.Publisher.Models;
 
-namespace RabbitPoc.Principal.Controllers
+namespace RabbitPoc.Publisher.Controllers
 {
     public class HomeController : Controller
     {

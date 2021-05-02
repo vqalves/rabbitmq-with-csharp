@@ -1,6 +1,6 @@
 using System;
 
-namespace RabbitPoc.Principal.Models
+namespace RabbitPoc.Publisher.Models
 {
     public class ErrorViewModel
     {

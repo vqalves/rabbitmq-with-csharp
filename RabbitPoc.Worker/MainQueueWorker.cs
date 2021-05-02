@@ -10,7 +10,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RabbitPoc.Worker
+namespace RabbitPoc.Consumer
 {
     public class MainQueueWorker : BackgroundService
     {

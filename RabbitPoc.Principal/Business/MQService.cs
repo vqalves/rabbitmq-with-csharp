@@ -7,7 +7,7 @@ using RabbitPoc.MQCommon.Structure;
 using System;
 using System.Collections.Concurrent;
 
-namespace RabbitPoc.Principal.Business
+namespace RabbitPoc.Publisher.Business
 {
     public class MQService
     {

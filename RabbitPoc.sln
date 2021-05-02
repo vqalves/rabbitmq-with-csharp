@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitPoc.Principal", "RabbitPoc.Principal\RabbitPoc.Principal.csproj", "{84D044F0-7585-4136-B21A-CC6FE77C84B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitPoc.Publisher", "RabbitPoc.Principal\RabbitPoc.Publisher.csproj", "{84D044F0-7585-4136-B21A-CC6FE77C84B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitPoc.Worker", "RabbitPoc.Worker\RabbitPoc.Worker.csproj", "{CEA20043-657D-471E-A2FB-24AE8CBDD01D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitPoc.Consumer", "RabbitPoc.Worker\RabbitPoc.Consumer.csproj", "{CEA20043-657D-471E-A2FB-24AE8CBDD01D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitPoc.MQCommon", "RabbitPoc.MQCommon\RabbitPoc.MQCommon.csproj", "{434C14E6-AF3E-41E7-AB38-C29660967D56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitPoc.MQCommon", "RabbitPoc.MQCommon\RabbitPoc.MQCommon.csproj", "{434C14E6-AF3E-41E7-AB38-C29660967D56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
