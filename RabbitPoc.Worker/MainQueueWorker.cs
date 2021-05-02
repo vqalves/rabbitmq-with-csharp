@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using RabbitPoc.MQCommon.Exchanges;
-using RabbitPoc.MQCommon.Messages;
-using RabbitPoc.MQCommon.Queues;
-using RabbitPoc.MQCommon.Structure;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitPoc.MQCommon.Exchanges;
+using RabbitPoc.MQCommon.Messages;
+using RabbitPoc.MQCommon.Queues;
+using RabbitPoc.MQCommon.Structure;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RabbitPoc.Worker
 {
@@ -22,9 +19,10 @@ namespace RabbitPoc.Worker
 
         private readonly ConnectionFactory ConnectionFactory;
         private readonly ILogger Logger;
-        
+
         private IConnection Connection;
         private IModel Channel;
+
 
         public MainQueueWorker(ConnectionFactory connectionFactory, ILoggerFactory loggerFactory)
         {

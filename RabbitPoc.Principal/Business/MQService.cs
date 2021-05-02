@@ -1,16 +1,11 @@
-﻿using RabbitPoc.MQCommon;
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using RabbitPoc.MQCommon.Exchanges;
 using RabbitPoc.MQCommon.Messages;
 using RabbitPoc.MQCommon.Queues;
 using RabbitPoc.MQCommon.Structure;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RabbitPoc.Principal.Business
 {
@@ -73,9 +68,11 @@ namespace RabbitPoc.Principal.Business
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                // Make sure all queues are declared before trying to publish/consume
                 DelayedBy5SecondsQueue.DeclareQueue(channel);
-                RPCResponseQueue.DeclareQueue(channel);
+
+                // Create a new queue to await the results. The created queue has a unique name, is temporary and can be consumed exclusively to this channel. That way we can avoid other channels "stealing" the results of this call
+                var temporaryResponseQueue = channel.QueueDeclare(exclusive: true);
+                var responseQueueName = temporaryResponseQueue.QueueName;
 
                 // CorrelationID should be a unique code, shared between the send and returned message
                 var correlationId = Guid.NewGuid().ToString("n");
@@ -83,14 +80,12 @@ namespace RabbitPoc.Principal.Business
                 // Send the message
                 var messageProperties = channel.CreateBasicProperties();
                 messageProperties.CorrelationId = correlationId;
-                messageProperties.ReplyTo = RPCResponseQueue.QueueName;
+                messageProperties.ReplyTo = responseQueueName;
 
                 var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
                 channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: DelayedBy5SecondsQueue.QueueName, basicProperties: messageProperties, body: body);
 
                 // Listen to the response queue to receive the result data
-                // WARNING: RabbitMQ uses round-robin to distribute the messages between consumers. When multiple callers are listening to the same response queue, the response can go to some consumer who's not the original caller
-                // Don't use a single queue on a multi-threaded system or a web application (like this one)
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += (ch, ea) =>
                 {
@@ -102,7 +97,7 @@ namespace RabbitPoc.Principal.Business
                     }
                 };
 
-                channel.BasicConsume(RPCResponseQueue.QueueName, false, consumer);
+                channel.BasicConsume(responseQueueName, false, consumer);
 
                 // Any call that halts the execution until the response is received works
                 return responseQueue.Take();
