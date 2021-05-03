@@ -23,7 +23,7 @@ The main projects are RabbitPoc.Consumer and RabbitPoc.Publish.
 
 MQCommon is a support library to pinpoint which variables and methods should be the same between Consumer and Publisher, and to standardize the data structures for serialization/deserialization on all projects. It's usage is optional.
 
-![Project structure](./Readme/project-structure.PNG)
+![Project structure](./Readme/project-structure.png)
 
 ### Multiple operations inside a single queue
 
