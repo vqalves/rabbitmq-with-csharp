@@ -19,14 +19,14 @@ namespace RabbitPoc.MQCommon.Structure
             this.ExecuteByType.Add
             (
                 messageTypeId,
-                async (json) => await doWork(MessageMethods.FromJson<T>(json))
+                async (json) => await doWork(WrappedMessage<T>.Unwrap(json))
             );
         }
 
         public async Task<ExecutionResult> Execute(string json)
         {
             var result = new ExecutionResult();
-            var type = MessageMethods.GetType(json);
+            var type = TypedWrappedMessage.GetType(json);
 
             if (ExecuteByType.TryGetValue(type, out var doWork))
             {

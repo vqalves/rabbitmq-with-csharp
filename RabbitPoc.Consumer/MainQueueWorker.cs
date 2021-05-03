@@ -61,7 +61,7 @@ namespace RabbitPoc.Consumer
                 var consumer = new AsyncEventingBasicConsumer(Channel);
                 consumer.Received += async (ch, ea) =>
                 {
-                    var message = MessageMethods.ToJson(ea.Body);
+                    var message = WrappedMessage.ToJson(ea.Body);
                     var executionResult = await ProcessMessageDictionary.Execute(message);
 
                     if (executionResult.Processed)
@@ -96,7 +96,7 @@ namespace RabbitPoc.Consumer
                 ProcessedMessage = message
             };
 
-            var resultBody = MessageMethods.ToByte(ExampleResponse1.TypeID, result);
+            var resultBody = WrappedMessage.Wrap(ExampleResponse1.TypeID, result).ToBytes();
             return await Task.FromResult(resultBody);
         }
 

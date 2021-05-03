@@ -31,7 +31,7 @@ namespace RabbitPoc.Publisher.Business
             {
                 MainQueue.DeclareQueue(channel);
 
-                var body = MessageMethods.ToByte(ExampleMessage2.TypeID, content);
+                var body = WrappedMessage.Wrap(ExampleMessage2.TypeID, content).ToBytes();
                 channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: MainQueue.QueueName, basicProperties: null, body: body);
             }
         }
@@ -50,7 +50,7 @@ namespace RabbitPoc.Publisher.Business
                 // Delay configuration is done inside the queue declaration
                 DelayedBy5SecondsQueue.DeclareQueue(channel);
 
-                var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
+                var body = WrappedMessage.Wrap(ExampleMessage1.TypeID, content).ToBytes();
                 channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: DelayedBy5SecondsQueue.QueueName, basicProperties: null, body: body);
             }
         }
@@ -82,7 +82,7 @@ namespace RabbitPoc.Publisher.Business
                 messageProperties.CorrelationId = correlationId;
                 messageProperties.ReplyTo = responseQueueName;
 
-                var body = MessageMethods.ToByte(ExampleMessage1.TypeID, content);
+                var body = WrappedMessage.Wrap(ExampleMessage1.TypeID, content).ToBytes();
                 channel.BasicPublish(exchange: DefaultExchange.ExchangeName, routingKey: DelayedBy5SecondsQueue.QueueName, basicProperties: messageProperties, body: body);
 
                 // Listen to the response queue to receive the result data
@@ -91,7 +91,7 @@ namespace RabbitPoc.Publisher.Business
                 {
                     if (ea.BasicProperties.CorrelationId == correlationId)
                     {
-                        var response = MessageMethods.FromByte<ExampleResponse1>(ea.Body);
+                        var response = WrappedMessage<ExampleResponse1>.Unwrap(ea.Body);
                         channel.BasicAck(ea.DeliveryTag, false);
                         responseQueue.Add(response);
                     }
